@@ -1,0 +1,5 @@
+repository: '<repository_url>'
+username: '<username>'
+password: '<password>'
+slack_incoming_webhook_url: '<slack_incoming_webhook_url>'
+
