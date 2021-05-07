@@ -19,16 +19,12 @@ def main
   username = config['username']
   password = config['password']
 
-
   # fetch latest revision
   unless File.exists? "repositories/#{repository_name}"
     File.write("repositories/#{repository_name}", `svn info #{config['repository']} --username #{username} --password #{password} --non-interactive`[/Revision: (\d+)/, 1])
   end
 
-  # check current revision
   current_revision = File.read("repositories/#{repository_name}").to_i
-
-  # check latest revision
   latest_revision = `svn info #{config['repository']} --username #{username} --password #{password} --non-interactive`[/Revision: (\d+)/, 1].to_i
 
   return if current_revision == latest_revision
@@ -51,4 +47,3 @@ def post_to_slack(webhook_url, message)
     http.request request
   end
 end
-
