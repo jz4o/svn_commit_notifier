@@ -20,28 +20,27 @@ def main
   password = config['password']
 
 
-  # checkout
+  # fetch latest revision
   unless File.exists? "repositories/#{repository_name}"
-    `svn checkout #{config['repository']} --username #{username} --password #{password} --non-interactive repositories/#{repository_name}`
+    File.write("repositories/#{repository_name}", `svn info #{config['repository']} --username #{username} --password #{password} --non-interactive`[/Revision: (\d+)/, 1])
   end
 
   # check current revision
-  current_revision = `svn info repositories/#{repository_name}`[/Revision: (\d+)/, 1].to_i
+  current_revision = File.read("repositories/#{repository_name}").to_i
 
-  # update
-  `svn up repositories/#{repository_name} --username #{username} --password #{password}`
-
-  # check updated revision
-  updated_revision = `svn info repositories/#{repository_name}`[/Revision: (\d+)/, 1].to_i
+  # check latest revision
+  latest_revision = `svn info #{config['repository']} --username #{username} --password #{password} --non-interactive`[/Revision: (\d+)/, 1].to_i
 
   # check for updated
   puts "current_revision: #{current_revision}"
-  puts "updated_revision: #{updated_revision}"
+  puts "latest_revision: #{latest_revision}"
 
-  return if current_revision == updated_revision
+  return if current_revision == latest_revision
 
-  commit_log = `svn log repositories/#{repository_name} --username #{username} --password #{password} --limit #{updated_revision - current_revision}`
+  commit_log = `svn log #{config['repository']} --username #{username} --password #{password} --limit #{latest_revision - current_revision} --non-interactive`
   post_to_slack config['slack_incoming_webhook_url'], "```#{commit_log}```"
+
+  File.write("repositories/#{repository_name}", latest_revision)
 end
 
 def post_to_slack(webhook_url, message)
