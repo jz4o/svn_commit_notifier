@@ -31,10 +31,6 @@ def main
   # check latest revision
   latest_revision = `svn info #{config['repository']} --username #{username} --password #{password} --non-interactive`[/Revision: (\d+)/, 1].to_i
 
-  # check for updated
-  puts "current_revision: #{current_revision}"
-  puts "latest_revision: #{latest_revision}"
-
   return if current_revision == latest_revision
 
   commit_log = `svn log #{config['repository']} --username #{username} --password #{password} --limit #{latest_revision - current_revision} --non-interactive`
