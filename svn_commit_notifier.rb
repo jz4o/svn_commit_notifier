@@ -29,7 +29,7 @@ def main
 
   return if current_revision == latest_revision
 
-  commit_log = `svn log #{config['repository']} --username #{username} --password #{password} --limit #{latest_revision - current_revision} --non-interactive`
+  commit_log = `svn log #{config['repository']} --username #{username} --password #{password} --revision #{current_revision + 1}:#{latest_revision} --non-interactive`
   post_to_slack config['slack_incoming_webhook_url'], "```#{commit_log}```"
 
   File.write("repositories/#{repository_name}", latest_revision)
